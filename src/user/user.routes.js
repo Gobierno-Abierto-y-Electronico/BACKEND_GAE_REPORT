@@ -19,7 +19,7 @@ router.get(
 
 router.get(
 
-    '/profile',
+    '/:id',
     [
         validateJWT,
         validarCampos

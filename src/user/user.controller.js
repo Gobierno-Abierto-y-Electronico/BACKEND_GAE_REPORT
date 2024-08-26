@@ -13,12 +13,11 @@ export const getUsers = async (req = request, res = response) => {
 };
 
 export const getUserById = async (req = request, res = response) => {
-
-    const { user } = req;
+    const { id } = req.params;
 
     try {
 
-        const userData = await User.findById(user.id).select('-password');
+        const userData = await User.findById(id).select('-password');
         res.status(200).json({ user: userData });
     } catch (e) {
 

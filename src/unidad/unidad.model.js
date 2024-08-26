@@ -14,6 +14,11 @@ const UnidadSchema = Schema({
         type: Boolean,
         default: false
     },
+    report: {
+        type: Boolean,
+        default: false
+    },
+
     status: {
         type: Boolean,
         default: true

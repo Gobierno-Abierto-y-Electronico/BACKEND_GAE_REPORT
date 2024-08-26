@@ -45,10 +45,7 @@ const UserSchema = Schema({
         ref: 'Unidad',
         required: [true, "Enter a valid unidadId"]
     },
-    report: {
-        type: Boolean,
-        default: false
-    },
+    
     status: {
         type: Boolean,
         default: true

@@ -13,6 +13,7 @@ import userRoutes from '../src/user/user.routes.js';
 import authRoutes from '../src/auth/auth.routes.js';
 import forumRoute from '../src/forum/forum.router.js';
 import noteRoutes from '../src/note/note.routes.js';
+import reportRoutes from '../src/report/report.routes.js'
 import personalRoutes from '../src/personal/personal.routes.js';
 import unidadRoutes from '../src/unidad/unidad.routes.js';
 
@@ -32,7 +33,8 @@ class Server{
         this.appointmentPath = '/GAE/v1/appointment';
         this.notePath = '/GAE/v1/note';
         this.personalPath = '/GAE/v1/personal';
-        this.unidadPath = '/GAE/v1/unidad'
+        this.unidadPath = '/GAE/v1/unidad';
+        this.reportPath = '/GAE/v1/report'
         
         this.middlewares()
         this.conectarDB()
@@ -65,6 +67,7 @@ class Server{
         this.app.use(this.notePath, noteRoutes);
         this.app.use(this.personalPath, personalRoutes);
         this.app.use(this.unidadPath, unidadRoutes);
+        this.app.use(this.reportPath, reportRoutes);
     }
 
     listen(){
