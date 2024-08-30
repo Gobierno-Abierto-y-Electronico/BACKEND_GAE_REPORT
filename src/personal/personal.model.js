@@ -14,6 +14,10 @@ const PersonalSchema = Schema({
         required: [true, 'number of the personal is necessary'],
         unique: true
     },
+    reason: {
+        type: String,
+        default: " "
+    },
     status: {
         type: Boolean,
         default: true

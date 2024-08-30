@@ -7,6 +7,7 @@ const ReporteSchema = new Schema({
             lastName: String,
             number: String,
             unidadId: String,
+            reason: String,
             selected: Boolean
         }
     ],

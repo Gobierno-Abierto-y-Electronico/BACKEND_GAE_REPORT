@@ -3,8 +3,8 @@ import Personal from "./personal.model.js";
 import Unidad from '../unidad/unidad.model.js';
 
 export const postPersonal = async (req, res) => {
-    const { name, lastName, number, unidadId } = req.body;
-    const personal = new Personal({ name, lastName, number, unidadId });
+    const { name, lastName, number, reason, unidadId } = req.body;
+    const personal = new Personal({ name, lastName, number, reason, unidadId });
 
     try {
         await personal.save();

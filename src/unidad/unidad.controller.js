@@ -116,12 +116,12 @@ export const generarExcel = async (req, res) => {
     const workbook = new exceljs.Workbook();
     const worksheet = workbook.addWorksheet('Informe de personal');
 
-    worksheet.addRow(['Nombre', 'Apellido', 'Numero', 'Departamento', 'Asistencia']);
+    worksheet.addRow(['Nombre', 'Apellido', 'Numero', 'Departamento', 'Asistencia', 'Razón']);
 
     for (const personal of listado) {
-        const { name, lastName, number, unidadId, selected } = personal;
+        const { name, lastName, number, unidadId, selected, reason} = personal;
         const departmentName = await getDepartmentNameById(unidadId);
-        worksheet.addRow([name, lastName, number, departmentName, selected ? 'No Asistió' : 'Asistió']);
+        worksheet.addRow([name, lastName, number, departmentName, selected ? 'No Asistió' : 'Asistió', reason]);
     }
 
     worksheet.columns.forEach(column => {
