@@ -8,7 +8,6 @@ const UnidadSchema = Schema({
     numberOfWorkers: {
         type: Number,
         required: [true, 'number of workers is necessary'],
-        unique: true
     },
     full: {
         type: Boolean,
@@ -18,7 +17,10 @@ const UnidadSchema = Schema({
         type: Boolean,
         default: false
     },
-
+    dateOfReportByUnity:{
+        type: String,
+        default: "2024-01-01"
+    },
     status: {
         type: Boolean,
         default: true

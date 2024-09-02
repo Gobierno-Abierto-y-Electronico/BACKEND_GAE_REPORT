@@ -31,10 +31,18 @@ export const storeReporteData = async (req, res) => {
 
 export const getReporteData = async (req, res) => {
     try {
-        const reporte = await Reporte.findOne().sort({ createdAt: -1 }).exec();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        const reporte = await Reporte.findOne({
+            createdAt: { $gte: today, $lt: tomorrow }
+        }).sort({ createdAt: -1 }).exec();
 
         if (!reporte) {
-            return res.status(404).json({ message: 'No se encontró ningún reporte' });
+            return res.status(404).json({ message: 'No se encontró ningún reporte para hoy' });
         }
 
         res.status(200).json(reporte);
@@ -43,3 +51,4 @@ export const getReporteData = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener el reporte' });
     }
 };
+
