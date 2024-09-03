@@ -1,17 +1,21 @@
 import Reporte from './report.model.js';
 
 export const storeReporteData = async (req, res) => {
-    const { listado } = req.body;
+    const { listado, fecha } = req.body;
     console.log(listado, "listado backend");
+    console.log(fecha, "fecha backend");
 
     try {
-        let reporte = await Reporte.findOne();
+        const fechaParsed = new Date(fecha);
+
+        let reporte = await Reporte.findOne({ fecha: fechaParsed });
 
         if (reporte) {
             reporte.reportes = [...reporte.reportes, ...listado];
             await reporte.save();
         } else {
             reporte = new Reporte({
+                fecha: fechaParsed,
                 reportes: listado
             });
             await reporte.save();
@@ -28,6 +32,7 @@ export const storeReporteData = async (req, res) => {
         });
     }
 };
+
 
 export const getReporteData = async (req, res) => {
     try {

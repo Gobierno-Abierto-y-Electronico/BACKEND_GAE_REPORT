@@ -1,6 +1,11 @@
 import mongoose, { Schema, model } from 'mongoose';
 
 const ReporteSchema = new Schema({
+    fecha: {
+        type: Date,
+        required: true,
+        unique: true
+    },
     reportes: [
         {
             name: String,
