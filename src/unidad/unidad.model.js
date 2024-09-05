@@ -18,7 +18,10 @@ const UnidadSchema = Schema({
         type: Boolean,
         default: false
     },
-
+    dateOfReportByUnity: {
+        type: Date,
+        default: Date.now
+    },
     status: {
         type: Boolean,
         default: true

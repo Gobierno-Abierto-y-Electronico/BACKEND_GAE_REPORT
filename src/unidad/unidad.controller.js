@@ -66,7 +66,6 @@ export const putUnity = async (req, res = response) => {
     const { ...resto } = req.body;
 
     try {
-        console.log(id, "id backend unidad")
         const updatedUnity = await Unidad.findByIdAndUpdate(id, resto, { new: true })
 
         res.status(200).json({
@@ -119,7 +118,7 @@ export const generarExcel = async (req, res) => {
     worksheet.addRow(['Nombre', 'Apellido', 'Numero', 'Departamento', 'Asistencia', 'Razón']);
 
     for (const personal of listado) {
-        const { name, lastName, number, unidadId, selected, reason} = personal;
+        const { name, lastName, number, unidadId, selected, reason } = personal;
         const departmentName = await getDepartmentNameById(unidadId);
         worksheet.addRow([name, lastName, number, departmentName, selected ? 'No Asistió' : 'Asistió', reason]);
     }
