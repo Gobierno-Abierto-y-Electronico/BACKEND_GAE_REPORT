@@ -1,5 +1,5 @@
 import { request, response } from 'express';
-import Post from './Post.model.js';
+import Post from './post.model.js';
 import User from '../user/user.model.js';
 import cloudinary from '../../config/cloudinary.js';
 

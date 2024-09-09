@@ -23,6 +23,7 @@ class Server{
 
         this.app = express()
         this.port = process.env.PORT
+        this.URI_MONGO= process.env.URI_MONGO
 
         this.userPath = '/GAE/v1/user'
         this.authPath = '/GAE/v1/auth'
@@ -73,6 +74,7 @@ class Server{
     listen(){
         this.app.listen(this.port, () => {
             console.log('Server running on port ', this.port)
+            console.log('Server running on port ', this.URI_MONGO)
         })
     }
 }
