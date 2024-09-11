@@ -129,18 +129,20 @@ export const generarExcel = async (req, res) => {
     });
 
     try {
-        const archivoGenerado = 'listado.xlsx';
-        await workbook.xlsx.writeFile(archivoGenerado);
+        // Guardar el archivo en memoria y enviarlo como descarga
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="listado.xlsx"');
 
-        res.status(200).json({
-            msg: 'Archivo de Excel generado correctamente, revísalo en la carpeta del proyecto'
-        });
+        await workbook.xlsx.write(res);
+        res.end();
+
     } catch (error) {
         res.status(500).json({
-            error: 'Error al generar el archivo de Excel, para realizar cambios es necesario que el archivo de Excel esté cerrado'
+            error: 'Error al generar el archivo de Excel'
         });
     }
 };
+
 
 
 

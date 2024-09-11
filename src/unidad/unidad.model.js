@@ -7,8 +7,7 @@ const UnidadSchema = Schema({
     },
     numberOfWorkers: {
         type: Number,
-        required: [true, 'number of workers is necessary'],
-        unique: true
+        required: [true, 'number of workers is necessary']
     },
     full: {
         type: Boolean,

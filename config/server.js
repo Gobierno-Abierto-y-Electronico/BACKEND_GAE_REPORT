@@ -50,7 +50,10 @@ class Server{
     middlewares(){
 
         this.app.use(express.urlencoded({extended: false}))
-        this.app.use(cors())
+        this.app.use(cors({
+            origin: 'https://frontend-gae-inventory.vercel.app/',
+            credentials: true,
+        }));
         this.app.use(express.json())
         this.app.use(helmet())
         this.app.use(morgan('dev'))
