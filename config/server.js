@@ -17,56 +17,64 @@ import reportRoutes from '../src/report/report.routes.js'
 import personalRoutes from '../src/personal/personal.routes.js';
 import unidadRoutes from '../src/unidad/unidad.routes.js';
 
-class Server{
+class Server {
 
-    constructor(){
+    constructor() {
+        this.app = express();
+        this.port = process.env.PORT;
+        this.URI_MONGO = process.env.URI_MONGO;
 
-        this.app = express()
-        this.port = process.env.PORT
-        this.URI_MONGO= process.env.URI_MONGO
-
-        this.userPath = '/GAE/v1/user'
-        this.authPath = '/GAE/v1/auth'
+        this.userPath = '/GAE/v1/user';
+        this.authPath = '/GAE/v1/auth';
         this.chatPath = '/GAE/v1/chat';
-        this.messagePath = '/GAE/v1/message'
+        this.messagePath = '/GAE/v1/message';
         this.postPath = '/GAE/v1/post';
-        this.forumPath = '/GAE/v1/forum'
+        this.forumPath = '/GAE/v1/forum';
         this.appointmentPath = '/GAE/v1/appointment';
         this.notePath = '/GAE/v1/note';
         this.personalPath = '/GAE/v1/personal';
         this.unidadPath = '/GAE/v1/unidad';
-        this.reportPath = '/GAE/v1/report'
-        
-        this.middlewares()
-        this.conectarDB()
-        this.routes()
+        this.reportPath = '/GAE/v1/report';
+
+        this.middlewares();
+        this.conectarDB();
+        this.routes();
     }
 
-    async conectarDB(){
-
-        await dbConnection()
+    async conectarDB() {
+        await dbConnection();
     }
 
-    middlewares(){
+    middlewares() {
+        const allowedOrigins = [
+            'https://frontend-gae-inventory.vercel.app',
+            'http://localhost:5173'
+        ];
 
-        this.app.use(express.urlencoded({extended: false}))
         this.app.use(cors({
-            origin: 'https://frontend-gae-inventory.vercel.app',
+            origin: (origin, callback) => {
+                if (!origin || allowedOrigins.includes(origin)) {
+                    callback(null, true);
+                } else {
+                    callback(new Error('Not allowed by CORS'));
+                }
+            },
             credentials: true,
         }));
-        this.app.use(express.json())
-        this.app.use(helmet())
-        this.app.use(morgan('dev'))
+
+        this.app.use(express.urlencoded({ extended: false }));
+        this.app.use(express.json());
+        this.app.use(helmet());
+        this.app.use(morgan('dev'));
     }
 
-    routes(){
-
+    routes() {
         this.app.use(this.userPath, userRoutes);
-        this.app.use(this.authPath, authRoutes)
+        this.app.use(this.authPath, authRoutes);
         this.app.use(this.chatPath, chatRoutes);
         this.app.use(this.messagePath, messageRoutes);
         this.app.use(this.appointmentPath, appointmentRoutes);
-        this.app.use(this.forumPath,forumRoute);
+        this.app.use(this.forumPath, forumRoute);
         this.app.use(this.postPath, postRoutes);
         this.app.use(this.notePath, noteRoutes);
         this.app.use(this.personalPath, personalRoutes);
@@ -74,12 +82,12 @@ class Server{
         this.app.use(this.reportPath, reportRoutes);
     }
 
-    listen(){
+    listen() {
         this.app.listen(this.port, () => {
-            console.log('Server running on port ', this.port)
-            console.log('Server running on port ', this.URI_MONGO)
-        })
+            console.log('Server running on port', this.port);
+            console.log('MongoDB URI:', this.URI_MONGO);
+        });
     }
 }
 
-export default Server
+export default Server;
