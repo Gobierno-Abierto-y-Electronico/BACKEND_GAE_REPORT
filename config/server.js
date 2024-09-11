@@ -51,7 +51,7 @@ class Server{
 
         this.app.use(express.urlencoded({extended: false}))
         this.app.use(cors({
-            origin: 'https://frontend-gae-inventory.vercel.app/',
+            origin: 'https://frontend-gae-inventory.vercel.app',
             credentials: true,
         }));
         this.app.use(express.json())
