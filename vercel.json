@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "version": 2,
     "name": "ThriveTogether",
@@ -13,4 +14,21 @@
             "dest": "/"
         }
     ]
+=======
+{
+    "version": 2,
+    "name": "ThriveTogether",
+    "builds": [
+        {
+            "src": "./index.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/"
+        }
+    ]
+>>>>>>> origin/master
 }

@@ -4,10 +4,26 @@ export const storeReporteData = async (req, res) => {
     const { listado } = req.body;
     console.log(listado, "listado backend");
 
+<<<<<<< HEAD
     try {
         let reporte = await Reporte.findOne();
 
         if (reporte) {
+=======
+    const today = new Date().toISOString().split('T')[0];
+
+    try {
+
+        let reporte = await Reporte.findOne({
+            createdAt: {
+                $gte: new Date(today),
+                $lt: new Date(today + 'T23:59:59.999Z')
+            }
+        });
+
+        if (reporte) {
+           
+>>>>>>> origin/master
             reporte.reportes = [...reporte.reportes, ...listado];
             await reporte.save();
         } else {
