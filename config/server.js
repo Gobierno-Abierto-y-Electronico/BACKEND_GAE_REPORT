@@ -48,7 +48,7 @@ class Server {
     middlewares() {
         const allowedOrigins = [
             'https://frontend-gae-inventory.vercel.app',
-            'http://localhost:5173'
+            'http://localhost:5174'
         ];
 
         this.app.use(cors({
