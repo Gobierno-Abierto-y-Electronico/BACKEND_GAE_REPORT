@@ -46,14 +46,11 @@ class Server {
     }
 
     middlewares() {
-        const allowedOrigins = [
-            'https://frontend-gae-inventory.vercel.app',
-            'http://localhost:5174'
-        ];
-
+        const allowedOriginsRegex = /^https:\/\/frontend-gae-inventory.*\.vercel\.app$/;
+    
         this.app.use(cors({
             origin: (origin, callback) => {
-                if (!origin || allowedOrigins.includes(origin)) {
+                if (!origin || allowedOriginsRegex.test(origin) || origin === 'http://localhost:5174') {
                     callback(null, true);
                 } else {
                     callback(new Error('Not allowed by CORS'));
@@ -61,12 +58,13 @@ class Server {
             },
             credentials: true,
         }));
-
+    
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(express.json());
         this.app.use(helmet());
         this.app.use(morgan('dev'));
     }
+    
 
     routes() {
         this.app.use(this.userPath, userRoutes);
