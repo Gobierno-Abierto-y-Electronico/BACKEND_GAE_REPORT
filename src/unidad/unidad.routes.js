@@ -6,7 +6,8 @@ import {
     getUnityById,
     putUnity,
     deleteUnity,
-    generarExcel
+    generarExcel, 
+    getUnitsUpdatedToday
 } from "./unidad.controller.js";
 import { validarCampos } from "../middlewares/validar-campos.js";
 import { validateJWT } from '../middlewares/validate-jwt.js'; 
@@ -38,6 +39,11 @@ router.get(
         validarCampos,
     ],
     getUnityById
+);
+
+router.get(
+    "/updated-today",
+    getUnitsUpdatedToday
 );
 
 router.put(

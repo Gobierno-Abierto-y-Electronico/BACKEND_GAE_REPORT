@@ -21,6 +21,28 @@ export const postUnity = async (req, res) => {
     }
 };
 
+export const getUnitsUpdatedToday = async (req, res = response) => {
+    try {
+        const today = new Date();
+        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+        const units = await Unidad.find({
+            dateOfReportByUnity: { $gte: startOfDay, $lte: endOfDay },
+            status: true
+        });
+
+        res.status(200).json({
+            units
+        });
+    } catch (error) {
+        console.error('Error fetching units updated today:', error);
+        res.status(500).json({
+            error: 'Internal server error'
+        });
+    }
+};
+
 export const getUnits = async (req = request, res = response) => {
     const { start, end } = req.query;
     const query = { status: true };
