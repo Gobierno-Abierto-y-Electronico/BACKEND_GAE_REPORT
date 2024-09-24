@@ -42,7 +42,7 @@ router.get(
 );
 
 router.get(
-    "/updated-today",
+    "/obtener/updated-today",
     getUnitsUpdatedToday
 );
 
