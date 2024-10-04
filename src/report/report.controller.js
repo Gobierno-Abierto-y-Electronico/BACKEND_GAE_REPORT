@@ -1,28 +1,31 @@
 import Reporte from './report.model.js';
 
 export const storeReporteData = async (req, res) => {
-    const { listado } = req.body;
-    console.log(listado, "listado backend");
+    const { listado, fecha } = req.body;
+    console.log(listado, fecha, "listado backend");
 
-    const today = new Date().toISOString().split('T')[0];
+    // Convertimos la fecha recibida a un rango de inicio y fin del día.
+    const startOfDay = new Date(fecha + 'T00:00:00.000Z');
+    const endOfDay = new Date(fecha + 'T23:59:59.999Z');
 
     try {
-
+        // Buscamos si ya existe un reporte para la fecha enviada
         let reporte = await Reporte.findOne({
             createdAt: {
-                $gte: new Date(today),
-                $lt: new Date(today + 'T23:59:59.999Z')
+                $gte: startOfDay,
+                $lt: endOfDay
             }
         });
-        "ayudaa"
 
         if (reporte) {
-           
+            // Si ya existe, añadimos los nuevos datos al reporte existente
             reporte.reportes = [...reporte.reportes, ...listado];
             await reporte.save();
         } else {
+            // Si no existe, creamos un nuevo reporte para la fecha
             reporte = new Reporte({
-                reportes: listado
+                reportes: listado,
+                createdAt: startOfDay // Aquí puedes asegurar que la fecha sea la correcta
             });
             await reporte.save();
         }
