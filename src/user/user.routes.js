@@ -9,21 +9,21 @@ const router = Router();
 router.get(
 
     '/',
-    [
+/*     [
         validateJWT,
         validateRole('ADMIN_ROLE'),
         validarCampos
-    ],
+    ], */
     getUsers
 );
 
 router.get(
 
     '/:id',
-    [
+/*     [
         validateJWT,
         validarCampos
-    ],
+    ], */
     getUserById
 );
 
@@ -31,7 +31,7 @@ router.put(
 
     '/put/:id',
     [
-        validateJWT,
+  /*       validateJWT, */
         check('name', 'The name cannot be empty').optional().not().isEmpty(),
         check('username', 'The username cannot be empty').optional().not().isEmpty(),
         check('email', 'The email must be a valid email').optional().isEmail(),
@@ -42,11 +42,11 @@ router.put(
 );
 
 router.delete(
-    
+
     '/profile',
-    [
+/*     [
         validateJWT
-    ],
+    ], */
     deleteUser
 );
 
