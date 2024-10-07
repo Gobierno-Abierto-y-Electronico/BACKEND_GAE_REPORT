@@ -9,6 +9,7 @@ export const getUsers = async (req = request, res = response) => {
         const [total, users] = await Promise.all([
             User.countDocuments(query),
             User.find(query)
+                .populate('unidadId', 'nameUnity')
                 .skip(Number(start))
                 .limit(Number(end))
         ]);
@@ -24,6 +25,7 @@ export const getUsers = async (req = request, res = response) => {
         });
     }
 };
+
 
 
 export const getUserById = async (req, res) => {
