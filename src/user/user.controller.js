@@ -2,17 +2,31 @@ import { request, response } from 'express';
 import User from './user.model.js';
 
 export const getUsers = async (req = request, res = response) => {
+    const { start, end } = req.query;
+    const query = { status: true };
 
     try {
-        const users = await User.find({}, 'name username role');
-        res.status(200).json({ users });
-    } catch (e) {
+        const [total, users] = await Promise.all([
+            User.countDocuments(query),
+            User.find(query)
+                .skip(Number(start))
+                .limit(Number(end))
+        ]);
 
-        res.status(500).json({ msg: 'Contact the administrator' });
+        res.status(200).json({
+            total,
+            users
+        });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({
+            msg: 'Internal server error'
+        });
     }
 };
 
-export const getUserById = async (req = request, res = response) => {
+
+export const getUserById = async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -42,7 +56,7 @@ export const updateUser = async (req, res) => {
 };
 
 
-export const deleteUser = async (req = request, res = response) => {
+export const deleteUser = async (req, res) => {
 
     const { user } = req;
     
