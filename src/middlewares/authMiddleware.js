@@ -11,8 +11,11 @@ const options = {
 
 passport.use(
   new BearerStrategy(options, (token, done) => {
-    return done(null, token);
+    // Aquí puedes acceder a la información del usuario en el token
+    // por ejemplo, token.sub (ID del usuario) o token.upn (correo)
+    return done(null, token); // Puedes devolver el token o el objeto del usuario
   })
 );
 
+// Exporta la función de autenticación para su uso en las rutas
 export const authenticate = passport.authenticate("oauth-bearer", { session: false });

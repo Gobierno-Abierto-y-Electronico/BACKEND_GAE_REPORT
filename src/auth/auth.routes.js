@@ -1,35 +1,24 @@
-import { Router } from 'express';
-import { check } from 'express-validator';
-import { registerUser, login } from './auth.controller.js';
-import { existUsername, existeEmail, isStatusValid } from '../helpers/db-validators.js';
-import { validarCampos } from '../middlewares/validar-campos.js';
+import express from 'express';
+import { authenticate } from '../middlewares/authMiddleware.js';
 
-const router = Router();
+const router = express.Router();
 
-router.post(
-    
-    '/register',
-    [
-        check('name', 'The name cannot be empty').not().isEmpty(),
-        check('username', 'The username cannot be empty').not().isEmpty(),
-        check('username').custom(existUsername),
-        check('email', 'The email must be a valid email').isEmail(),
-        check('email').custom(existeEmail),
-        check('password', 'The password cannot be empty or min 8 characters').not().isEmpty().isLength({ min: 8 }),
-        validarCampos
-    ],
-    registerUser
-);
+// Ruta protegida para obtener el perfil del usuario
+router.get('/perfil', authenticate, (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'No autorizado' }); // Manejo de errores
+  }
+  
+  res.json({
+    msg: 'Acceso permitido',
+    usuario: req.user, // `req.user` contendrá la información del usuario autenticado
+  });
+});
 
-router.post(
-
-    '/login',
-    [
-        check('email', 'The email must be a valid email').isEmail(),
-        check('password', 'The password cannot be empty').not().isEmpty(),
-        validarCampos
-    ],
-    login
-);
+// Otras rutas que puedes agregar
+router.get('/logout', (req, res) => {
+  // Implementa la lógica para cerrar sesión
+  res.json({ msg: 'Sesión cerrada' });
+});
 
 export default router;

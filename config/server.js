@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import passport from 'passport';
 import { dbConnection } from './mongo.js';
 import chatRoutes from '../src/chat/chat.routes.js';
 import messageRoutes from '../src/message/message.routes.js';
@@ -13,9 +14,12 @@ import userRoutes from '../src/user/user.routes.js';
 import authRoutes from '../src/auth/auth.routes.js';
 import forumRoute from '../src/forum/forum.router.js';
 import noteRoutes from '../src/note/note.routes.js';
-import reportRoutes from '../src/report/report.routes.js'
+import reportRoutes from '../src/report/report.routes.js';
 import personalRoutes from '../src/personal/personal.routes.js';
 import unidadRoutes from '../src/unidad/unidad.routes.js';
+
+
+import { authenticate } from '../src/middlewares/authMiddleware.js';
 
 class Server {
 
@@ -55,22 +59,21 @@ class Server {
         this.app.use(express.json());
         this.app.use(helmet());
         this.app.use(morgan('dev'));
+        this.app.use(passport.initialize());
     }
     
-    
-
     routes() {
-        this.app.use(this.userPath, userRoutes);
+        this.app.use(this.userPath, authenticate, userRoutes);
         this.app.use(this.authPath, authRoutes);
-        this.app.use(this.chatPath, chatRoutes);
-        this.app.use(this.messagePath, messageRoutes);
-        this.app.use(this.appointmentPath, appointmentRoutes);
-        this.app.use(this.forumPath, forumRoute);
-        this.app.use(this.postPath, postRoutes);
-        this.app.use(this.notePath, noteRoutes);
-        this.app.use(this.personalPath, personalRoutes);
-        this.app.use(this.unidadPath, unidadRoutes);
-        this.app.use(this.reportPath, reportRoutes);
+        this.app.use(this.chatPath, authenticate, chatRoutes);
+        this.app.use(this.messagePath, authenticate, messageRoutes);
+        this.app.use(this.appointmentPath, authenticate, appointmentRoutes);
+        this.app.use(this.forumPath, authenticate, forumRoute);
+        this.app.use(this.postPath, authenticate, postRoutes);
+        this.app.use(this.notePath, authenticate, noteRoutes);
+        this.app.use(this.personalPath, authenticate, personalRoutes);
+        this.app.use(this.unidadPath, authenticate, unidadRoutes);
+        this.app.use(this.reportPath, authenticate, reportRoutes);
     }
 
     listen() {
