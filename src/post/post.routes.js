@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { validateJWT, validateRole } from '../middlewares/validate-jwt.js';
+import { validateJWT } from '../middlewares/validate-jwt.js';
 import { createPost, updatePost, deletePost, listPost } from '../post/post.controller.js';
 import { validarCampos } from '../middlewares/validar-campos.js';
 import multer from 'multer';
@@ -22,7 +22,6 @@ router.post(
     '/newPost',
     [
         validateJWT,
-        validateRole('ADMIN_ROLE'),
         upload.single('photo'),
         check('title', 'Title is required').not().isEmpty(),
         check('description', 'Description is required').not().isEmpty(),
@@ -35,7 +34,6 @@ router.put(
     '/:id',
     [
         validateJWT,
-        validateRole('ADMIN_ROLE'),
         upload.single('photo'),
         check('title', 'Title is required').not().isEmpty(),
         check('description', 'Description is required').not().isEmpty(),
@@ -47,8 +45,7 @@ router.put(
 router.delete(
     '/:id',
     [
-        validateJWT,
-        validateRole('ADMIN_ROLE')
+        validateJWT
     ],
     deletePost
 );

@@ -67,29 +67,41 @@ export const getUnits = async (req = request, res = response) => {
     }
 };
 
-export const getUnityById = async (req, res) => {
-    const { id } = req.params;
+export const getUnityByName = async (req, res) => {
+    const { nameUnity } = req.params;
 
     try {
-        const unity = await Unidad.findOne({ _id: id })
+        const unity = await Unidad.findOne({ nameUnity });
+
+        if (!unity) {
+            return res.status(404).json({
+                error: 'Unity not found'
+            });
+        }
 
         res.status(200).json({
             unity
         });
     } catch (error) {
-        console.error('Error fetching unity by ID:', error);
+        console.error('Error fetching unity by name:', error);
         res.status(500).json({
             error: 'Internal server error'
         });
     }
 };
 
-export const putUnity = async (req, res = response) => {
-    const { id } = req.params;
+export const putUnityByName = async (req, res) => {
+    const { nameUnity } = req.params;
     const { ...resto } = req.body;
 
     try {
-        const updatedUnity = await Unidad.findByIdAndUpdate(id, resto, { new: true })
+        const updatedUnity = await Unidad.findOneAndUpdate({ nameUnity }, resto, { new: true });
+
+        if (!updatedUnity) {
+            return res.status(404).json({
+                error: 'Unity not found'
+            });
+        }
 
         res.status(200).json({
             msg: 'Updated Unity!!',
@@ -103,11 +115,17 @@ export const putUnity = async (req, res = response) => {
     }
 };
 
-export const deleteUnity = async (req, res) => {
-    const { id } = req.params;
+export const deleteUnityByName = async (req, res) => {
+    const { nameUnity } = req.params;
 
     try {
-        const unity = await Unidad.findByIdAndUpdate(id, { status: false })
+        const unity = await Unidad.findOneAndUpdate({ nameUnity }, { status: false });
+
+        if (!unity) {
+            return res.status(404).json({
+                error: 'Unity not found'
+            });
+        }
 
         res.status(200).json({
             msg: 'Unity successfully removed',
@@ -121,16 +139,17 @@ export const deleteUnity = async (req, res) => {
     }
 };
 
-const getDepartmentNameById = async (id) => {
+const getDepartmentNameByName = async (nameUnity) => {
     try {
-        const unidad = await Unidad.findById(id);
-        console.log(unidad)
+        const unidad = await Unidad.findOne({ nameUnity });
+        console.log(unidad);
         return unidad ? unidad.nameUnity : 'Unknown Department';
     } catch (error) {
         console.error('Error fetching department name:', error);
         return 'Error';
     }
 };
+
 
 export const generarExcel = async (req, res) => {
     const { listado } = req.body;

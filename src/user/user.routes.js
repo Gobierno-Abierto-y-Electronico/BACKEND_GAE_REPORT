@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { validateJWT, validateRole, compareUser } from '../middlewares/validate-jwt.js';
+import { validateJWT } from '../middlewares/validate-jwt.js';
 import { getUsers, getUserById, updateUser, deleteUser } from './user.controller.js';
 import { validarCampos } from '../middlewares/validar-campos.js';
 

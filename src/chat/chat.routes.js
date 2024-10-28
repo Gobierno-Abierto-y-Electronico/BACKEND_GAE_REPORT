@@ -8,7 +8,7 @@ import {
     deleteChat,
 } from "./chat.controller.js";
 import { validarCampos } from "../middlewares/validar-campos.js";
-import { validateJWT, validateRole } from '../middlewares/validate-jwt.js'; 
+import { validateJWT } from '../middlewares/validate-jwt.js'; 
 
 const router = Router();
 

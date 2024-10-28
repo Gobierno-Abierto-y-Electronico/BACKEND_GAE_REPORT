@@ -3,21 +3,21 @@ import { check } from "express-validator";
 import {
     postUnity,
     getUnits,
-    getUnityById,
-    putUnity,
-    deleteUnity,
+    getUnityByName,
+    putUnityByName,
+    deleteUnityByName,
     generarExcel, 
     getUnitsUpdatedToday
 } from "./unidad.controller.js";
 import { validarCampos } from "../middlewares/validar-campos.js";
-import { validateJWT } from '../middlewares/validate-jwt.js'; 
+import { authenticate } from '../middlewares/authmiddleware.js'; // Importa el middleware de autenticación
 
 const router = Router();
 
 router.post(
     "/",
     [
-        //validateJWT,
+        authenticate, // Usar autenticación aquí
         check("nameUnity", "The name of the unity is required").not().isEmpty(),
         check("numberOfWorkers", "The number of workers is required").not().isEmpty(),
         validarCampos,
@@ -27,47 +27,50 @@ router.post(
 
 router.get(
     "/",
-    //validateJWT,
+    authenticate, // Usar autenticación aquí
     getUnits
 );
 
 router.get(
-    "/:id",
+    "/name/:nameUnity",
     [
-        //validateJWT,
-        check("id", "This is not a valid ID").isMongoId(),
+        authenticate, // Usar autenticación aquí
+        check("nameUnity", "The name of the unity is required").not().isEmpty(),
         validarCampos,
     ],
-    getUnityById
+    getUnityByName
+);
+
+router.put(
+    "/name/:nameUnity",
+    [
+        authenticate, // Usar autenticación aquí
+        check("nameUnity", "The name of the unity is required").not().isEmpty(),
+        validarCampos,
+    ],
+    putUnityByName
+);
+
+router.delete(
+    "/name/:nameUnity",
+    [
+        authenticate, // Usar autenticación aquí
+        check("nameUnity", "The name of the unity is required").not().isEmpty(),
+        validarCampos,
+    ],
+    deleteUnityByName
 );
 
 router.get(
     "/obtener/UnidadesEnviadas",
+    authenticate, // Usar autenticación aquí
     getUnitsUpdatedToday
 );
 
-router.put(
-    "/:id",
-    [
-        //validateJWT,
-        check("id", "This is not a valid ID").isMongoId(),
-        validarCampos,
-    ],
-    putUnity
-);
-
-router.delete(
-    "/:id",
-    [
-        //validateJWT,
-        check("id", "This is not a valid ID").isMongoId(),
-        validarCampos,
-    ],
-    deleteUnity
-);
-
 router.post(
-    "/excel", generarExcel
-)
+    "/excel",
+    authenticate, // Usar autenticación aquí
+    generarExcel
+);
 
 export default router;
