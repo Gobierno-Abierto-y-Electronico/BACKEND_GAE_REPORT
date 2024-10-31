@@ -4,8 +4,7 @@ import { storeReporteData, getReporteData } from './report.controller.js';
 
 const router = express.Router();
 
-router.post('/reportes/store', storeReporteData);
-
+router.post('/', storeReporteData);
 
 router.get("/", getReporteData);
 

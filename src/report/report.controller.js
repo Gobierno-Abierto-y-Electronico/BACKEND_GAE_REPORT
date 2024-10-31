@@ -1,12 +1,12 @@
 import Reporte from './report.model.js';
 
 export const storeReporteData = async (req, res) => {
-    const { listado, fecha } = req.body;
-    console.log(listado, fecha, "listado backend");
+    const { user, date, time, status } = req.body;
+    console.log(user, date, time, status, "registro de asistencia backend");
 
     // Convertimos la fecha recibida a un rango de inicio y fin del día.
-    const startOfDay = new Date(fecha + 'T00:00:00.000Z');
-    const endOfDay = new Date(fecha + 'T23:59:59.999Z');
+    const startOfDay = new Date(date + 'T00:00:00.000Z');
+    const endOfDay = new Date(date + 'T23:59:59.999Z');
 
     try {
         // Buscamos si ya existe un reporte para la fecha enviada
@@ -17,30 +17,33 @@ export const storeReporteData = async (req, res) => {
             }
         });
 
+        const nuevoRegistro = { user, date, time, status };
+
         if (reporte) {
-            // Si ya existe, añadimos los nuevos datos al reporte existente
-            reporte.reportes = [...reporte.reportes, ...listado];
+            // Si ya existe, añadimos el nuevo registro al reporte existente
+            reporte.reportes.push(nuevoRegistro);
             await reporte.save();
         } else {
             // Si no existe, creamos un nuevo reporte para la fecha
             reporte = new Reporte({
-                reportes: listado,
+                reportes: [nuevoRegistro],
                 createdAt: startOfDay // Aquí puedes asegurar que la fecha sea la correcta
             });
             await reporte.save();
         }
 
         res.status(200).json({
-            msg: 'Reporte almacenado correctamente',
+            msg: 'Registro de asistencia almacenado correctamente',
             data: reporte
         });
     } catch (error) {
-        console.error('Error al almacenar el reporte:', error);
+        console.error('Error al almacenar el registro de asistencia:', error);
         res.status(500).json({
-            error: 'Error al almacenar el reporte'
+            error: 'Error al almacenar el registro de asistencia'
         });
     }
 };
+
 
 export const getReporteData = async (req, res) => {
     try {

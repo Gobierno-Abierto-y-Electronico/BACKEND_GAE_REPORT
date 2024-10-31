@@ -68,7 +68,7 @@ class Server {
         this.app.use(this.postPath, authenticate, postRoutes);
         this.app.use(this.personalPath, authenticate, personalRoutes);
         this.app.use(this.unidadPath, authenticate, unidadRoutes);
-        this.app.use(this.reportPath, authenticate, reportRoutes);
+        this.app.use(this.reportPath, reportRoutes);
     }
 
     listen() {
