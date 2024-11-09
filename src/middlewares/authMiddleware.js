@@ -2,9 +2,9 @@ import passport from 'passport';
 import { BearerStrategy } from 'passport-azure-ad';
 
 const options = {
-  identityMetadata: `https://login.microsoftonline.com/4e5a94e9-e691-484d-a509-0f12ed40cce5/v2.0/.well-known/openid-configuration`,
-  clientID: "2932b071-06f3-4247-9c52-1228fafc85c7",
-  issuer: `https://login.microsoftonline.com/4e5a94e9-e691-484d-a509-0f12ed40cce5/v2.0`,
+  identityMetadata: `https://login.microsoftonline.com/a00e95d9-ed09-478e-9f3a-7aa025deb516/v2.0/.well-known/openid-configuration`,
+  clientID: "7d105d0d-94ca-4645-873d-4bd5edf190bb",
+  issuer: `https://login.microsoftonline.com/a00e95d9-ed09-478e-9f3a-7aa025deb516/v2.0`,
   loggingLevel: "info",
   passReqToCallback: false,
 };
