@@ -4,11 +4,11 @@ const ReporteSchema = new Schema({
     reportes: [
         {
             name: String,
-            lastName: String,
-            number: String,
-            unidadId: String,
-            reason: { type: String, required: false }, // 'reason' es opcional
-            selected: Boolean
+            date: String,
+            time: String,
+            status: String,
+            reason: { type: String, required: false },
+            ip: String
         }
     ],
     date: {

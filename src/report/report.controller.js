@@ -30,12 +30,12 @@ export const storeReporteData = async (req, res) => {
         // Agregar cada registro al arreglo "reportes"
         records.forEach((record) => {
             const nuevoRegistro = {
-                name: record.user.split(' ')[0], // Separar el nombre
-                lastName: record.user.split(' ')[1], // Separar el apellido
-                number: "No disponible",           // Si no tienes un número, lo puedes dejar así
-                unidadId: "No disponible",         // Lo mismo con unidadId
-                reason: record.reason || '',       // Si no se envía 'reason', asignar una cadena vacía
-                selected: false                    // Valor por defecto
+                name: record.user,          // Guardar el nombre completo tal como está en 'user'
+                date: record.date,          // Usar la fecha tal como viene
+                time: record.time,          // Usar la hora tal como viene
+                status: record.status,      // Usar el estado tal como viene
+                reason: record.reason || '', // Si no se envía 'reason', asignar una cadena vacía
+                ip: record.ip || '',        // Guardar la IP (si se envía)
             };
 
             reporte.reportes.push(nuevoRegistro);
@@ -57,8 +57,6 @@ export const storeReporteData = async (req, res) => {
 };
 
 
-
-// Obtener el último reporte
 export const getReporteData = async (req, res) => {
     try {
         const reporte = await Reporte.findOne().sort({ createdAt: -1 }).exec();
