@@ -2,24 +2,23 @@ import Reporte from './report.model.js';
 
 export const storeReporteData = async (req, res) => {
     const { name, lastName, number, unidadId, reason, selected, date } = req.body;
-    console.log(name, lastName, number, unidadId, reason, selected, date, "registro de asistencia backend");
+    console.log("Datos recibidos:", { name, lastName, number, unidadId, reason, selected, date });
 
     const startOfDay = new Date(date + 'T00:00:00.000Z');
     const endOfDay = new Date(date + 'T23:59:59.999Z');
 
     try {
         let reporte = await Reporte.findOne({
-            date: {
-                $gte: startOfDay,
-                $lt: endOfDay
-            }
+            date: { $gte: startOfDay, $lt: endOfDay }
         });
 
         const nuevoRegistro = { name, lastName, number, unidadId, reason, selected };
 
         if (reporte) {
+            console.log("Reporte existente encontrado para el día:", date);
             reporte.reportes.push(nuevoRegistro);
         } else {
+            console.log("Creando un nuevo reporte para el día:", date);
             reporte = new Reporte({
                 date: startOfDay,
                 reportes: [nuevoRegistro]
@@ -27,6 +26,7 @@ export const storeReporteData = async (req, res) => {
         }
 
         await reporte.save();
+        console.log("Reporte guardado:", reporte);
 
         res.status(200).json({
             msg: 'Registro de asistencia almacenado correctamente',
@@ -39,6 +39,7 @@ export const storeReporteData = async (req, res) => {
         });
     }
 };
+
 
 // Obtener el último reporte
 export const getReporteData = async (req, res) => {
