@@ -30,12 +30,12 @@ export const storeReporteData = async (req, res) => {
         // Agregar cada registro al arreglo "reportes"
         records.forEach((record) => {
             const nuevoRegistro = {
-                name: record.name,           // Asegúrate de que estas propiedades estén en los datos que envías
-                lastName: record.lastName,
-                number: record.number,
-                unidadId: record.unidadId,
-                reason: record.reason,
-                selected: record.selected    // Otras propiedades que deseas guardar
+                name: record.user.split(' ')[0], // Separar el nombre
+                lastName: record.user.split(' ')[1], // Separar el apellido
+                number: "No disponible",           // Si no tienes un número, lo puedes dejar así
+                unidadId: "No disponible",         // Lo mismo con unidadId
+                reason: record.reason || '',       // Si no se envía 'reason', asignar una cadena vacía
+                selected: false                    // Valor por defecto
             };
 
             reporte.reportes.push(nuevoRegistro);

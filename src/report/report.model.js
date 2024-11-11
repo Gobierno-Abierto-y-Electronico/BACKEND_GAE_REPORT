@@ -7,7 +7,7 @@ const ReporteSchema = new Schema({
             lastName: String,
             number: String,
             unidadId: String,
-            reason: String,
+            reason: { type: String, required: false }, // 'reason' es opcional
             selected: Boolean
         }
     ],
@@ -23,6 +23,7 @@ const ReporteSchema = new Schema({
         type: Date,
         default: Date.now
     }
+
 });
 
 ReporteSchema.pre('save', function (next) {
