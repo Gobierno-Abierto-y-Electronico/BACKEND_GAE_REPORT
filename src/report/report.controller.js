@@ -19,6 +19,7 @@ export const storeReporteData = async (req, res) => {
             },
         });
 
+        // Si no existe un reporte para ese día, crear uno nuevo
         if (!reporte) {
             reporte = new Reporte({
                 date: startOfDay,
@@ -26,17 +27,21 @@ export const storeReporteData = async (req, res) => {
             });
         }
 
+        // Agregar cada registro al arreglo "reportes"
         records.forEach((record) => {
             const nuevoRegistro = {
-                user: record.user,
-                date: record.date,
-                time: record.time,
-                status: record.status,
-                ip: record.ip,
+                name: record.name,           // Asegúrate de que estas propiedades estén en los datos que envías
+                lastName: record.lastName,
+                number: record.number,
+                unidadId: record.unidadId,
+                reason: record.reason,
+                selected: record.selected    // Otras propiedades que deseas guardar
             };
+
             reporte.reportes.push(nuevoRegistro);
         });
 
+        // Guardar el reporte actualizado
         await reporte.save();
 
         res.status(200).json({
