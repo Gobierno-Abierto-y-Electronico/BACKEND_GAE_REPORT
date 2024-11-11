@@ -2,16 +2,16 @@ import Reporte from './report.model.js';
 
 export const storeReporteData = async (req, res) => {
     const { records } = req.body; // Recibir el arreglo de registros del frontend
+    console.log('Datos recibidos:', records); // Verificar los datos recibidos
+
     if (!records || records.length === 0) {
         return res.status(400).json({ error: 'No hay registros para almacenar' });
     }
 
     try {
-        // Convertir la fecha de los registros a inicio y fin del día
         const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
         const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
 
-        // Buscar el reporte para el día específico
         let reporte = await Reporte.findOne({
             date: {
                 $gte: startOfDay,
@@ -19,15 +19,13 @@ export const storeReporteData = async (req, res) => {
             },
         });
 
-        // Si el reporte no existe, crearlo
         if (!reporte) {
             reporte = new Reporte({
                 date: startOfDay,
-                reportes: [], // Iniciar un array vacío si el reporte no existe
+                reportes: [],
             });
         }
 
-        // Agregar los registros al reporte
         records.forEach((record) => {
             const nuevoRegistro = {
                 user: record.user,
@@ -36,11 +34,9 @@ export const storeReporteData = async (req, res) => {
                 status: record.status,
                 ip: record.ip,
             };
-            // Si el reporte ya existe, solo agregar los registros
             reporte.reportes.push(nuevoRegistro);
         });
 
-        // Guardar el reporte con los nuevos registros
         await reporte.save();
 
         res.status(200).json({
