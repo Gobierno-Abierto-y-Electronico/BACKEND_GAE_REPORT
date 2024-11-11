@@ -1,8 +1,8 @@
 import Reporte from './report.model.js';
 
 export const storeReporteData = async (req, res) => {
-    const { name, lastName, number, unidadId, reason, selected, date } = req.body;
-    console.log("Datos recibidos:", { name, lastName, number, unidadId, reason, selected, date });
+    const { reportes, date } = req.body;  // Asegúrate de recibir el array 'reportes'
+    console.log("Datos recibidos:", reportes);
 
     const startOfDay = new Date(date + 'T00:00:00.000Z');
     const endOfDay = new Date(date + 'T23:59:59.999Z');
@@ -12,16 +12,14 @@ export const storeReporteData = async (req, res) => {
             date: { $gte: startOfDay, $lt: endOfDay }
         });
 
-        const nuevoRegistro = { name, lastName, number, unidadId, reason, selected };
-
         if (reporte) {
             console.log("Reporte existente encontrado para el día:", date);
-            reporte.reportes.push(nuevoRegistro);
+            reporte.reportes.push(...reportes);  // Agregar los reportes
         } else {
             console.log("Creando un nuevo reporte para el día:", date);
             reporte = new Reporte({
                 date: startOfDay,
-                reportes: [nuevoRegistro]
+                reportes: reportes // Crear el reporte con el array de reportes
             });
         }
 
@@ -39,6 +37,7 @@ export const storeReporteData = async (req, res) => {
         });
     }
 };
+
 
 
 // Obtener el último reporte
