@@ -4,13 +4,8 @@ import { storeReporteData, getReporteData, getReporteByDate } from './report.con
 
 const router = express.Router();
 
-// Ruta para almacenar datos de asistencia
-router.post('/', storeReporteData);
-
-// Ruta para obtener el último reporte
+router.post('/enviar', storeReporteData);
 router.get('/', getReporteData);
-
-// Ruta para obtener el reporte de un día específico (usando un query parameter "date")
 router.get('/by-date', getReporteByDate);
 
 export default router;
