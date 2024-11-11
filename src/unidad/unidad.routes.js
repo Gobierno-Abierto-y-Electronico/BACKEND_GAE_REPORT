@@ -10,7 +10,7 @@ import {
     getUnitsUpdatedToday
 } from "./unidad.controller.js";
 import { validarCampos } from "../middlewares/validar-campos.js";
-import { authenticate } from '../middlewares/authmiddleware.js'; // Importa el middleware de autenticación
+import { authenticate } from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
