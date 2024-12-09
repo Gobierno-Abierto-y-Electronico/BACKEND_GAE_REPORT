@@ -1,105 +1,124 @@
-import Reporte from './report.model.js';
+import { response, request } from "express";
+import Personal from "./personal.model.js";
 
-export const storeReporteData = async (req, res) => {
-    const { records } = req.body; // Recibir el arreglo de registros del frontend
-    console.log('Datos recibidos:', records); // Verificar los datos recibidos
+// Función para crear un nuevo registro de Personal
+export const postPersonal = async (req, res) => {
+    const { name, lastName, number, reason, unidadId } = req.body;
+    const ipCliente = req.ip || req.connection.remoteAddress; // Capturar la IP del cliente
 
-    if (!records || records.length === 0) {
-        return res.status(400).json({ error: 'No hay registros para almacenar' });
-    }
+    // Crear un nuevo objeto de Personal con los datos proporcionados y la IP
+    const personal = new Personal({ name, lastName, number, reason, unidadId, ip: ipCliente });
 
     try {
-        const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
-        const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
-
-        let reporte = await Reporte.findOne({
-            date: {
-                $gte: startOfDay,
-                $lt: endOfDay,
-            },
+        // Guardar el nuevo registro de personal en la base de datos
+        await personal.save();
+        res.status(201).json({
+            msg: "Personal created successfully: ",
+            personal
         });
-
-        // Si no existe un reporte para ese día, crear uno nuevo
-        if (!reporte) {
-            reporte = new Reporte({
-                date: startOfDay,
-                reportes: [],
-            });
-        }
-
-        // Agregar cada registro al arreglo "reportes"
-        records.forEach((record) => {
-            const ipCliente = req.ip || req.connection.remoteAddress; // Capturar la IP desde la solicitud
-
-            const nuevoRegistro = {
-                name: record.user,          // Guardar el nombre completo tal como está en 'user'
-                date: record.date,          // Usar la fecha tal como viene
-                time: record.time,          // Usar la hora tal como viene
-                status: record.status,      // Usar el estado tal como viene
-                reason: record.reason || '', // Si no se envía 'reason', asignar una cadena vacía
-                ip: ipCliente,              // Guardar la IP del cliente (obtenida desde la solicitud)
-            };
-
-            reporte.reportes.push(nuevoRegistro);
+    } catch (error) {
+        res.status(500).json({
+            error
         });
+    }
+};
 
-        // Guardar el reporte actualizado
-        await reporte.save();
+// Función para obtener todos los registros de Personal
+export const getPersonales = async (req = request, res = response) => {
+    const { start, end } = req.query;
+    const query = { status: true };
+
+    try {
+        // Obtener el total de registros y los registros de personal con paginación
+        const [total, personales] = await Promise.all([
+            Personal.countDocuments(query),
+            Personal.find(query)
+                .skip(Number(start))
+                .limit(Number(end))
+        ]);
 
         res.status(200).json({
-            msg: 'Registros de asistencia almacenados correctamente',
-            data: reporte,
+            total,
+            personales
         });
     } catch (error) {
-        console.error('Error al almacenar el registro de asistencia:', error);
+        console.error('Error fetching personales:', error);
         res.status(500).json({
-            error: 'Error al almacenar el registro de asistencia',
+            error: 'Internal server error'
         });
     }
 };
 
+// Función para obtener los registros de Personal por unidad
+export const getPersonalById = async (req, res) => {
+    const { start, end } = req.query;
+    const { id } = req.params;
+    const query = { status: true, unidadId: id};
 
-export const getReporteData = async (req, res) => {
     try {
-        const reporte = await Reporte.findOne().sort({ createdAt: -1 }).exec();
+        // Obtener el total de registros y los registros de personal por unidad con paginación
+        const [total, personales] = await Promise.all([
+            Personal.countDocuments(query),
+            Personal.find(query)
+                .skip(Number(start))
+                .limit(Number(end))
+        ]);
 
-        if (!reporte) {
-            return res.status(404).json({ message: 'No se encontró ningún reporte' });
-        }
-
-        res.status(200).json(reporte);
+        res.status(200).json({
+            total,
+            personales
+        });
     } catch (error) {
-        console.error('Error al obtener el reporte:', error);
-        res.status(500).json({ message: 'Error al obtener el reporte' });
+        console.error('Error fetching personales:', error);
+        res.status(500).json({
+            error: 'Internal server error'
+        });
     }
 };
 
-// Obtener el reporte de una fecha específica
-export const getReporteByDate = async (req, res) => {
-    const { date } = req.query;
+// Función para actualizar un registro de Personal
+export const putPersonal = async (req, res = response) => {
+    const { id } = req.params;
+    const { ...resto } = req.body;
 
-    if (!date) {
-        return res.status(400).json({ message: 'Por favor, proporciona una fecha válida en formato YYYY-MM-DD' });
-    }
-
-    const startOfDay = new Date(date + 'T00:00:00.000Z');
-    const endOfDay = new Date(date + 'T23:59:59.999Z');
+    const ipCliente = req.ip || req.connection.remoteAddress; // Capturar la IP del cliente
 
     try {
-        const reporte = await Reporte.findOne({
-            date: {
-                $gte: startOfDay,
-                $lt: endOfDay
-            }
+        // Actualizar el registro de personal con los nuevos datos, incluida la IP
+        const updatedPersonal = await Personal.findByIdAndUpdate(
+            id, 
+            { ...resto, ip: ipCliente }, // Actualizar la IP junto con los otros datos
+            { new: true }
+        );
+
+        res.status(200).json({
+            msg: 'Updated Personal!!',
+            unity: updatedPersonal
         });
-
-        if (!reporte) {
-            return res.status(404).json({ message: 'No se encontró un reporte para la fecha especificada' });
-        }
-
-        res.status(200).json(reporte);
     } catch (error) {
-        console.error('Error al obtener el reporte:', error);
-        res.status(500).json({ message: 'Error al obtener el reporte' });
+        console.error('Error updating unity:', error);
+        res.status(500).json({
+            error: 'Internal server error'
+        });
+    }
+};
+
+// Función para eliminar un registro de Personal (marcar como inactivo)
+export const deletePersonal = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Marcar el personal como inactivo
+        const personal = await Personal.findByIdAndUpdate(id, { status: false });
+
+        res.status(200).json({
+            msg: 'Personal successfully removed',
+            personal,
+        });
+    } catch (error) {
+        console.error('Error deleting personal:', error);
+        res.status(500).json({
+            error: 'Internal server error'
+        });
     }
 };
