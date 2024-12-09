@@ -12,6 +12,21 @@ export const storeReporteData = async (req, res) => {
         const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
         const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
 
+        // Verificar si ya hay un registro para el usuario en este día
+        const existingReport = await Reporte.findOne({
+            date: {
+                $gte: startOfDay,
+                $lt: endOfDay,
+            },
+            'reportes.user': records[0].user, // Buscar por el usuario
+        });
+
+        if (existingReport) {
+            return res.status(400).json({
+                error: `La asistencia ya fue registrada para el usuario ${records[0].user} en el día ${records[0].date}`,
+            });
+        }
+
         let reporte = await Reporte.findOne({
             date: {
                 $gte: startOfDay,
@@ -30,12 +45,12 @@ export const storeReporteData = async (req, res) => {
         // Agregar cada registro al arreglo "reportes"
         records.forEach((record) => {
             const nuevoRegistro = {
-                name: record.user,          // Guardar el nombre completo tal como está en 'user'
-                date: record.date,          // Usar la fecha tal como viene
-                time: record.time,          // Usar la hora tal como viene
-                status: record.status,      // Usar el estado tal como viene
-                reason: record.reason || '', // Si no se envía 'reason', asignar una cadena vacía
-                ip: record.ip || '',        // Guardar la IP (si se envía)
+                name: record.user,
+                date: record.date,
+                time: record.time,
+                status: record.status,
+                reason: record.reason || '',
+                ip: record.ip || '',
             };
 
             reporte.reportes.push(nuevoRegistro);
@@ -55,7 +70,6 @@ export const storeReporteData = async (req, res) => {
         });
     }
 };
-
 
 export const getReporteData = async (req, res) => {
     try {
