@@ -13,56 +13,27 @@ export const storeReporteData = async (req, res) => {
     }
 
     try {
-        const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
-        const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
+        // Obtener la IP del cliente desde el encabezado X-Forwarded-For
+        let clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-        const existingReport = await Reporte.findOne({
-            date: { $gte: startOfDay, $lt: endOfDay },
-            'reportes.user': records[0].user,
-        });
-
-        if (existingReport) {
-            return res.status(400).json({
-                error: `La asistencia ya fue registrada para el usuario ${records[0].user} en el día ${records[0].date}`,
-            });
+        // Si hay múltiples IPs (en caso de proxies), tomamos la primera
+        if (clientIp.includes(',')) {
+            clientIp = clientIp.split(',')[0].trim();
         }
 
-        let reporte = await Reporte.findOne({
-            date: { $gte: startOfDay, $lt: endOfDay },
-        });
+        console.log('IP cliente detectada:', clientIp);
 
-        if (!reporte) {
-            reporte = new Reporte({ date: startOfDay, reportes: [] });
-        }
-
-        // Obtener la IP del cliente
-        let clientIp = req.ip;
-        if (clientIp === '::1') {
-            clientIp = '127.0.0.1'; // Manejar localhost
-        }
-
+        // Aquí continúa tu lógica para almacenar los registros
+        // Agregar la IP del cliente a cada registro
         records.forEach((record) => {
-            const nuevoRegistro = {
-                name: record.user,
-                date: record.date,
-                time: record.time,
-                status: record.status,
-                reason: record.reason || '',
-                ip: clientIp,
-            };
-
-            reporte.reportes.push(nuevoRegistro);
+            record.ip = clientIp;
         });
 
-        await reporte.save();
-
-        res.status(200).json({
-            msg: 'Registros de asistencia almacenados correctamente',
-            data: reporte,
-        });
+        // Resto de tu lógica...
+        res.status(200).json({ msg: 'Registros procesados', ip: clientIp });
     } catch (error) {
-        console.error('Error al almacenar el registro de asistencia:', error);
-        res.status(500).json({ error: 'Error al almacenar el registro de asistencia' });
+        console.error('Error al procesar la solicitud:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
 
