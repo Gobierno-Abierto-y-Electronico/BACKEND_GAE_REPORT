@@ -13,27 +13,56 @@ export const storeReporteData = async (req, res) => {
     }
 
     try {
-        // Obtener la IP del cliente desde el encabezado X-Forwarded-For
-        let clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
+        const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
 
-        // Si hay múltiples IPs (en caso de proxies), tomamos la primera
-        if (clientIp.includes(',')) {
-            clientIp = clientIp.split(',')[0].trim();
-        }
-
-        console.log('IP cliente detectada:', clientIp);
-
-        // Aquí continúa tu lógica para almacenar los registros
-        // Agregar la IP del cliente a cada registro
-        records.forEach((record) => {
-            record.ip = clientIp;
+        const existingReport = await Reporte.findOne({
+            date: { $gte: startOfDay, $lt: endOfDay },
+            'reportes.user': records[0].user,
         });
 
-        // Resto de tu lógica...
-        res.status(200).json({ msg: 'Registros procesados', ip: clientIp });
+        if (existingReport) {
+            return res.status(400).json({
+                error: `La asistencia ya fue registrada para el usuario ${records[0].user} en el día ${records[0].date}`,
+            });
+        }
+
+        let reporte = await Reporte.findOne({
+            date: { $gte: startOfDay, $lt: endOfDay },
+        });
+
+        if (!reporte) {
+            reporte = new Reporte({ date: startOfDay, reportes: [] });
+        }
+
+        // Obtener la IP del cliente
+        let clientIp = req.ip;
+        if (clientIp === '::1') {
+            clientIp = '127.0.0.1'; // Manejar localhost
+        }
+
+        records.forEach((record) => {
+            const nuevoRegistro = {
+                name: record.user,
+                date: record.date,
+                time: record.time,
+                status: record.status,
+                reason: record.reason || '',
+                ip: clientIp,
+            };
+
+            reporte.reportes.push(nuevoRegistro);
+        });
+
+        await reporte.save();
+
+        res.status(200).json({
+            msg: 'Registros de asistencia almacenados correctamente',
+            data: reporte,
+        });
     } catch (error) {
-        console.error('Error al procesar la solicitud:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        console.error('Error al almacenar el registro de asistencia:', error);
+        res.status(500).json({ error: 'Error al almacenar el registro de asistencia' });
     }
 };
 
