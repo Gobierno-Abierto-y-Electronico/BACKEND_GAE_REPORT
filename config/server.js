@@ -22,9 +22,6 @@ class Server {
         this.app = express();
         this.port = process.env.PORT || 3000;
 
-        // Configurar Express para confiar en proxies
-        this.app.set('trust proxy', true);
-
         this.userPath = '/GAE/v1/user';
         this.authPath = '/GAE/v1/auth'; 
         this.chatPath = '/GAE/v1/chat';
