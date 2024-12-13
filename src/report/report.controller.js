@@ -1,5 +1,10 @@
 import Reporte from './report.model.js';
 
+// Configurar `trust proxy` si usas un proxy inverso
+import express from 'express';
+const app = express();
+app.set('trust proxy', true);
+
 export const storeReporteData = async (req, res) => {
     const { records } = req.body; // Recibir el arreglo de registros del frontend
     console.log('Datos recibidos:', records); // Verificar los datos recibidos
@@ -42,6 +47,9 @@ export const storeReporteData = async (req, res) => {
             });
         }
 
+        // Obtener la IP del cliente
+        const clientIp = req.ip;
+
         // Agregar cada registro al arreglo "reportes"
         records.forEach((record) => {
             const nuevoRegistro = {
@@ -50,7 +58,7 @@ export const storeReporteData = async (req, res) => {
                 time: record.time,
                 status: record.status,
                 reason: record.reason || '',
-                ip: record.ip || '',
+                ip: clientIp || '', // Guardar la IP del cliente
             };
 
             reporte.reportes.push(nuevoRegistro);
