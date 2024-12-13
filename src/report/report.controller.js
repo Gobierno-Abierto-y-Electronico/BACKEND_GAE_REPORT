@@ -6,8 +6,7 @@ const app = express();
 app.set('trust proxy', true);
 
 export const storeReporteData = async (req, res) => {
-    const { records } = req.body; // Recibir el arreglo de registros del frontend
-    console.log('Datos recibidos:', records); // Verificar los datos recibidos
+    const { records } = req.body;
 
     if (!records || records.length === 0) {
         return res.status(400).json({ error: 'No hay registros para almacenar' });
@@ -17,13 +16,9 @@ export const storeReporteData = async (req, res) => {
         const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
         const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
 
-        // Verificar si ya hay un registro para el usuario en este día
         const existingReport = await Reporte.findOne({
-            date: {
-                $gte: startOfDay,
-                $lt: endOfDay,
-            },
-            'reportes.user': records[0].user, // Buscar por el usuario
+            date: { $gte: startOfDay, $lt: endOfDay },
+            'reportes.user': records[0].user,
         });
 
         if (existingReport) {
@@ -33,24 +28,19 @@ export const storeReporteData = async (req, res) => {
         }
 
         let reporte = await Reporte.findOne({
-            date: {
-                $gte: startOfDay,
-                $lt: endOfDay,
-            },
+            date: { $gte: startOfDay, $lt: endOfDay },
         });
 
-        // Si no existe un reporte para ese día, crear uno nuevo
         if (!reporte) {
-            reporte = new Reporte({
-                date: startOfDay,
-                reportes: [],
-            });
+            reporte = new Reporte({ date: startOfDay, reportes: [] });
         }
 
         // Obtener la IP del cliente
-        const clientIp = req.ip;
+        let clientIp = req.ip;
+        if (clientIp === '::1') {
+            clientIp = '127.0.0.1'; // Manejar localhost
+        }
 
-        // Agregar cada registro al arreglo "reportes"
         records.forEach((record) => {
             const nuevoRegistro = {
                 name: record.user,
@@ -58,13 +48,12 @@ export const storeReporteData = async (req, res) => {
                 time: record.time,
                 status: record.status,
                 reason: record.reason || '',
-                ip: clientIp || '', // Guardar la IP del cliente
+                ip: clientIp,
             };
 
             reporte.reportes.push(nuevoRegistro);
         });
 
-        // Guardar el reporte actualizado
         await reporte.save();
 
         res.status(200).json({
@@ -73,9 +62,7 @@ export const storeReporteData = async (req, res) => {
         });
     } catch (error) {
         console.error('Error al almacenar el registro de asistencia:', error);
-        res.status(500).json({
-            error: 'Error al almacenar el registro de asistencia',
-        });
+        res.status(500).json({ error: 'Error al almacenar el registro de asistencia' });
     }
 };
 
