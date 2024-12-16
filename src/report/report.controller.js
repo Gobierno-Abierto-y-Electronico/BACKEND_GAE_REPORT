@@ -35,10 +35,15 @@ export const storeReporteData = async (req, res) => {
             reporte = new Reporte({ date: startOfDay, reportes: [] });
         }
 
-        // Obtener la IP del cliente
-        let clientIp = req.ip;
-        if (clientIp === '::1') {
-            clientIp = '127.0.0.1'; // Manejar localhost
+        // Obtener la IP real del cliente
+        let clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
+        if (clientIp.includes(',')) {
+            clientIp = clientIp.split(',')[0].trim();
+        }
+
+        // Manejar localhost (::1)
+        if (clientIp === '::1' || clientIp === '127.0.0.1') {
+            clientIp = 'IP Local';
         }
 
         records.forEach((record) => {
