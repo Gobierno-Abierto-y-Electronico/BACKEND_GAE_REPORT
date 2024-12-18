@@ -46,6 +46,8 @@ export const storeReporteData = async (req, res) => {
             clientIp = 'IP Local';
         }
 
+        console.log('IP del cliente:', clientIp);
+
         records.forEach((record) => {
             const nuevoRegistro = {
                 name: record.user,
@@ -63,6 +65,7 @@ export const storeReporteData = async (req, res) => {
 
         res.status(200).json({
             msg: 'Registros de asistencia almacenados correctamente',
+            clientIp, // Incluye la IP del cliente en la respuesta
             data: reporte,
         });
     } catch (error) {
