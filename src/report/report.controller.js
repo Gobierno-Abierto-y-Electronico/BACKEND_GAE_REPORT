@@ -39,12 +39,21 @@ export const storeReporteData = async (req, res) => {
 
         // Obtener la IP real del cliente
         let clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
+
+        // Log de depuración para verificar cabeceras
+        console.log('Headers:', req.headers);
+
+        // Capturar solo la primera IP si hay una lista
         if (clientIp.includes(',')) {
             clientIp = clientIp.split(',')[0].trim();
         }
+
+        // Convertir IPv6 a IPv4 si es necesario
         if (clientIp.startsWith('::ffff:')) {
-            clientIp = clientIp.split(':').pop(); // Convierte a IPv4
+            clientIp = clientIp.split(':').pop();
         }
+
+        // Manejar IPs locales
         if (clientIp === '::1' || clientIp === '127.0.0.1') {
             clientIp = 'IP Local';
         }
