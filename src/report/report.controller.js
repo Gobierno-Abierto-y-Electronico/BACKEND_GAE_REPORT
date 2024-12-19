@@ -4,10 +4,15 @@ import express from 'express';
 const app = express();
 app.set('trust proxy', true); // Configurar para manejar proxies
 
+import Reporte from './report.model.js';
+import express from 'express';
+
+const app = express();
+app.set('trust proxy', 1); // Configurar correctamente el nivel de proxy
+
 export const storeReporteData = async (req, res) => {
     const { records } = req.body;
 
-    // Validación de datos
     if (!records || !Array.isArray(records) || records.length === 0) {
         return res.status(400).json({ error: 'No hay registros para almacenar' });
     }
@@ -16,7 +21,6 @@ export const storeReporteData = async (req, res) => {
         const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
         const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
 
-        // Verificar si ya existe un reporte para el usuario en el día
         const existingReport = await Reporte.findOne({
             date: { $gte: startOfDay, $lt: endOfDay },
             'reportes.user': records[0].user,
@@ -28,7 +32,6 @@ export const storeReporteData = async (req, res) => {
             });
         }
 
-        // Verificar si existe un reporte para el día
         let reporte = await Reporte.findOne({
             date: { $gte: startOfDay, $lt: endOfDay },
         });
@@ -37,30 +40,28 @@ export const storeReporteData = async (req, res) => {
             reporte = new Reporte({ date: startOfDay, reportes: [] });
         }
 
-        // Obtener la IP real del cliente
-        let clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.ip;
+        // Capturar IP del cliente
+        let clientIp = req.headers['x-forwarded-for'] || req.ip;
 
-        // Log de depuración para verificar cabeceras
+        // Log de depuración para verificar cabeceras e IP
         console.log('Headers:', req.headers);
+        console.log('IP inicial:', clientIp);
 
-        // Capturar solo la primera IP si hay una lista
+        // Procesar la IP para obtener la del cliente real
         if (clientIp.includes(',')) {
             clientIp = clientIp.split(',')[0].trim();
         }
 
-        // Convertir IPv6 a IPv4 si es necesario
         if (clientIp.startsWith('::ffff:')) {
             clientIp = clientIp.split(':').pop();
         }
 
-        // Manejar IPs locales
         if (clientIp === '::1' || clientIp === '127.0.0.1') {
             clientIp = 'IP Local';
         }
 
-        console.log('IP del cliente:', clientIp);
+        console.log('IP procesada:', clientIp);
 
-        // Agregar registros al reporte
         records.forEach((record) => {
             const nuevoRegistro = {
                 name: record.user,
@@ -78,11 +79,11 @@ export const storeReporteData = async (req, res) => {
 
         res.status(200).json({
             msg: 'Registros de asistencia almacenados correctamente',
-            clientIp, // Incluye la IP del cliente en la respuesta para depuración
+            clientIp, // Incluye la IP en la respuesta para verificar
             data: reporte,
         });
     } catch (error) {
-        console.error('Error al almacenar el registro de asistencia:', error.message, error.stack);
+        console.error('Error al almacenar el registro de asistencia:', error);
         res.status(500).json({ error: 'Error al almacenar el registro de asistencia' });
     }
 };
