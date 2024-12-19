@@ -11,82 +11,54 @@ const app = express();
 app.set('trust proxy', 1); // Configurar correctamente el nivel de proxy
 
 export const storeReporteData = async (req, res) => {
-    const { records } = req.body;
+    const { user, date, time, status, reason, ip } = req.body;
 
-    if (!records || !Array.isArray(records) || records.length === 0) {
-        return res.status(400).json({ error: 'No hay registros para almacenar' });
+    if (!user || !date || !time || !status) {
+        return res.status(400).json({ error: "Faltan datos requeridos para registrar la asistencia" });
     }
 
     try {
-        const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
-        const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
+        // Valida si ya existe un registro para el mismo usuario y día
+        const startOfDay = new Date(date + 'T00:00:00.000Z');
+        const endOfDay = new Date(date + 'T23:59:59.999Z');
 
         const existingReport = await Reporte.findOne({
             date: { $gte: startOfDay, $lt: endOfDay },
-            'reportes.user': records[0].user,
+            'reportes.user': user,
         });
 
         if (existingReport) {
-            return res.status(400).json({
-                error: `La asistencia ya fue registrada para el usuario ${records[0].user} en el día ${records[0].date}`,
-            });
+            return res.status(400).json({ error: `Ya existe un registro para el usuario ${user} en el día ${date}` });
         }
 
-        let reporte = await Reporte.findOne({
-            date: { $gte: startOfDay, $lt: endOfDay },
-        });
+        // Crea el nuevo registro
+        const nuevoRegistro = {
+            user,
+            date,
+            time,
+            status,
+            reason: reason || "",
+            ip: ip || "IP no disponible",
+        };
 
+        let reporte = await Reporte.findOne({ date: { $gte: startOfDay, $lt: endOfDay } });
         if (!reporte) {
             reporte = new Reporte({ date: startOfDay, reportes: [] });
         }
 
-        // Capturar IP del cliente
-        let clientIp = req.headers['x-forwarded-for'] || req.ip;
-
-        // Log de depuración para verificar cabeceras e IP
-        console.log('Headers:', req.headers);
-        console.log('IP inicial:', clientIp);
-
-        // Procesar la IP para obtener la del cliente real
-        if (clientIp.includes(',')) {
-            clientIp = clientIp.split(',')[0].trim();
-        }
-
-        if (clientIp.startsWith('::ffff:')) {
-            clientIp = clientIp.split(':').pop();
-        }
-
-        if (clientIp === '::1' || clientIp === '127.0.0.1') {
-            clientIp = 'IP Local';
-        }
-
-        console.log('IP procesada:', clientIp);
-
-        records.forEach((record) => {
-            const nuevoRegistro = {
-                name: record.user,
-                date: record.date,
-                time: record.time,
-                status: record.status,
-                reason: record.reason || '',
-                ip: clientIp,
-            };
-
-            reporte.reportes.push(nuevoRegistro);
-        });
-
+        reporte.reportes.push(nuevoRegistro);
         await reporte.save();
 
         res.status(200).json({
-            msg: 'Registros de asistencia almacenados correctamente',
-            clientIp, // Incluye la IP en la respuesta para verificar
-            data: reporte,
+            msg: "Asistencia registrada correctamente",
+            data: nuevoRegistro,
         });
     } catch (error) {
-        console.error('Error al almacenar el registro de asistencia:', error);
-        res.status(500).json({ error: 'Error al almacenar el registro de asistencia' });
+        console.error("Error al registrar la asistencia:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
     }
 };
+
 
 export const getReporteData = async (req, res) => {
     try {
