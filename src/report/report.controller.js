@@ -1,14 +1,14 @@
 import Reporte from './report.model.js';
-
-// Configurar `trust proxy` si usas un proxy inverso
 import express from 'express';
+
 const app = express();
-app.set('trust proxy', true);
+app.set('trust proxy', true); // Configurar para manejar proxies
 
 export const storeReporteData = async (req, res) => {
     const { records } = req.body;
 
-    if (!records || records.length === 0) {
+    // Validación de datos
+    if (!records || !Array.isArray(records) || records.length === 0) {
         return res.status(400).json({ error: 'No hay registros para almacenar' });
     }
 
@@ -16,6 +16,7 @@ export const storeReporteData = async (req, res) => {
         const startOfDay = new Date(records[0].date + 'T00:00:00.000Z');
         const endOfDay = new Date(records[0].date + 'T23:59:59.999Z');
 
+        // Verificar si ya existe un reporte para el usuario en el día
         const existingReport = await Reporte.findOne({
             date: { $gte: startOfDay, $lt: endOfDay },
             'reportes.user': records[0].user,
@@ -27,6 +28,7 @@ export const storeReporteData = async (req, res) => {
             });
         }
 
+        // Verificar si existe un reporte para el día
         let reporte = await Reporte.findOne({
             date: { $gte: startOfDay, $lt: endOfDay },
         });
@@ -40,14 +42,16 @@ export const storeReporteData = async (req, res) => {
         if (clientIp.includes(',')) {
             clientIp = clientIp.split(',')[0].trim();
         }
-
-        // Manejar localhost (::1)
+        if (clientIp.startsWith('::ffff:')) {
+            clientIp = clientIp.split(':').pop(); // Convierte a IPv4
+        }
         if (clientIp === '::1' || clientIp === '127.0.0.1') {
             clientIp = 'IP Local';
         }
 
         console.log('IP del cliente:', clientIp);
 
+        // Agregar registros al reporte
         records.forEach((record) => {
             const nuevoRegistro = {
                 name: record.user,
@@ -65,11 +69,11 @@ export const storeReporteData = async (req, res) => {
 
         res.status(200).json({
             msg: 'Registros de asistencia almacenados correctamente',
-            clientIp, // Incluye la IP del cliente en la respuesta
+            clientIp, // Incluye la IP del cliente en la respuesta para depuración
             data: reporte,
         });
     } catch (error) {
-        console.error('Error al almacenar el registro de asistencia:', error);
+        console.error('Error al almacenar el registro de asistencia:', error.message, error.stack);
         res.status(500).json({ error: 'Error al almacenar el registro de asistencia' });
     }
 };
@@ -84,7 +88,7 @@ export const getReporteData = async (req, res) => {
 
         res.status(200).json(reporte);
     } catch (error) {
-        console.error('Error al obtener el reporte:', error);
+        console.error('Error al obtener el reporte:', error.message, error.stack);
         res.status(500).json({ message: 'Error al obtener el reporte' });
     }
 };
@@ -114,7 +118,7 @@ export const getReporteByDate = async (req, res) => {
 
         res.status(200).json(reporte);
     } catch (error) {
-        console.error('Error al obtener el reporte:', error);
+        console.error('Error al obtener el reporte:', error.message, error.stack);
         res.status(500).json({ message: 'Error al obtener el reporte' });
     }
 };
