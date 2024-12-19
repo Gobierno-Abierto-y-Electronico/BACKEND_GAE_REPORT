@@ -1,9 +1,9 @@
-import Reporte from './report.model.js';
+/* import Reporte from './report.model.js';
 import express from 'express';
 
 const app = express();
 app.set('trust proxy', true); // Configurar para manejar proxies
-
+ */
 import Reporte from './report.model.js';
 import express from 'express';
 
